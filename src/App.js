@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 import { Layout, Menu, Input, Button, Card, Avatar, message, Row, Col} from 'antd';
-import { EditOutlined, EllipsisOutlined, SettingOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, CloseOutlined, SettingOutlined, SearchOutlined } from '@ant-design/icons';
 import MenuItem from 'antd/lib/menu/MenuItem';
+const uniqid = require('uniqid'); 
 const { Header, Footer, Content } = Layout;
 const { Meta } = Card;
 
@@ -24,8 +25,9 @@ function App() {
       if (!PokemonToSearch == ''){
         const response = await fetch(`${API_URL}${PokemonToSearch}`);
         const Search = await response.json();
+        Search["uniqId"] = uniqid();
         setCards([Search,...cards])
-        console.log(cards)
+        // console.log(cards)
       }else {
         message.warning("Oh, please fill the search field!");
       }
@@ -33,9 +35,17 @@ function App() {
     } catch (error) {
         setLoading(false);
         message.error("Oh, that pokemon does not exist!")
-        console.log(error);
+        // console.log(error);
     }
   };
+  const  handleErrase= (id) => {
+    const cardIndexDelete = cards.findIndex((card)=>card.uniqId == id);
+    if (cardIndexDelete>-1){
+      cards.splice(cardIndexDelete,1);
+      setCards([...cards])
+    }
+
+  }
 
   return (
     <>
@@ -76,7 +86,7 @@ function App() {
                     actions={[
                       <SettingOutlined key="setting" />,
                       <EditOutlined key="edit" />,
-                      <EllipsisOutlined key="ellipsis" />,
+                      <CloseOutlined onClick={()=>handleErrase(card.uniqId)} key="close"/>
                     ]}
                     >
                       <Meta
@@ -86,6 +96,7 @@ function App() {
                       />
                     </Card>
                   </Col>
+
                 ))
             }
           </Row>
